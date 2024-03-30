@@ -1,3 +1,25 @@
-import requests, re, time
+import requests, re, time, json
 import pandas as pd
 from rich import print
+
+url = "https://www.google.com/search?tbm=map&authuser=0&hl=en&gl=se&pb=!4m12!1m3!1d19150.788073606862!2d16.56350345!3d59.614942549999995!2m3!1f0!2f0!3f0!3m2!1i1048!2i911!4f13.1!7i20!10b1!12m16!1m1!18b1!2m3!5m1!6e2!20e3!10b1!12b1!13b1!16b1!17m1!3e1!20m3!5e2!6b1!14b1!19m4!2m3!1i360!2i120!4i8!20m57!2m2!1i203!2i100!3m2!2i4!5b1!6m6!1m2!1i86!2i86!1m2!1i408!2i240!7m42!1m3!1e1!2b0!3e3!1m3!1e2!2b1!3e2!1m3!1e2!2b0!3e3!1m3!1e8!2b0!3e3!1m3!1e10!2b0!3e3!1m3!1e10!2b1!3e2!1m3!1e9!2b1!3e2!1m3!1e10!2b0!3e3!1m3!1e10!2b1!3e2!1m3!1e10!2b0!3e4!2b1!4b1!9b0!22m6!1sZkwIZvuUDuzMwPAP3q624AE%3A3!2s1i%3A0%2Ct%3A11886%2Cp%3AZkwIZvuUDuzMwPAP3q624AE%3A3!7e81!12e5!17sZkwIZvuUDuzMwPAP3q624AE%3A159!18e15!24m98!1m30!13m9!2b1!3b1!4b1!6i1!8b1!9b1!14b1!20b1!25b1!18m19!3b1!4b1!5b1!6b1!9b1!12b1!13b1!14b1!15b1!17b1!20b1!21b1!22b1!25b1!27m1!1b0!28b0!31b0!32b0!10m1!8e3!11m1!3e1!14m1!3b1!17b1!20m2!1e3!1e6!24b1!25b1!26b1!29b1!30m1!2b1!36b1!39m3!2m2!2i1!3i1!43b1!52b1!54m1!1b1!55b1!56m2!1b1!3b1!65m5!3m4!1m3!1m2!1i224!2i298!71b1!72m19!1m5!1b1!2b1!3b1!5b1!7b1!4b1!8m10!1m6!4m1!1e1!4m1!1e3!4m1!1e4!3sother_user_reviews!6m1!1e1!9b1!89b1!103b1!113b1!114m3!1b1!2m1!1b1!117b1!122m1!1b1!125b0!26m4!2m3!1i80!2i92!4i8!30m28!1m6!1m2!1i0!2i0!2m2!1i530!2i911!1m6!1m2!1i998!2i0!2m2!1i1048!2i911!1m6!1m2!1i0!2i0!2m2!1i1048!2i20!1m6!1m2!1i0!2i891!2m2!1i1048!2i911!34m18!2b1!3b1!4b1!6b1!8m6!1b1!3b1!4b1!5b1!6b1!7b1!9b1!12b1!14b1!20b1!23b1!25b1!26b1!37m1!1e81!42b1!47m0!49m7!3b1!6m2!1b1!2b1!7m2!1e3!2b1!50m4!2e2!3m2!1b1!3b1!61b1!67m2!7b1!10b1!69i686&q=vvs%20helsingborg&gs_l=maps.3..38i426k1j38i377i430i444k1j38i426k1l3.2686.26720.1.27734.30.30.....303.2240.0j10j3j1.14.....0....1..maps..16.14.2280.0..38i39i111i122i426k1j38i72k1j38i39i111i444k1j38i39i111i463k1j38i39i111i426k1j38i39k1.&tch=1"
+
+payload = {}
+headers = {
+  'cookie': 'SOCS=CAISHAgBEhJnd3NfMjAyNDAzMTktMF9SQzEaAmVuIAEaBgiA_YKwBg; SEARCH_SAMESITE=CgQI35oB; OTZ=7485718_52_52_123900_48_436380; OGPC=19037049-1:; OGP=-19037049:; 1P_JAR=2024-3-29-11; SID=g.a000iAi2kjm9MrXQZBVMgeVI2YHXCiTZnpMaw3uSTY1IVlwuv3_codcUZEnozXojjbCmuktz6QACgYKAbwSAQASFQHGX2MiNmW0Wh4dEpa5oBZpjrg5ExoVAUF8yKpaA-_gW83QllB3_Tjzcwfs0076; __Secure-1PSID=g.a000iAi2kjm9MrXQZBVMgeVI2YHXCiTZnpMaw3uSTY1IVlwuv3_c_4eObj4GZeE4emvKO9xfDQACgYKAdMSAQASFQHGX2MiTfkqCnBjKU-1rdlpvy8u9BoVAUF8yKqUXHCoLOwP-hGilg4vPnvY0076; __Secure-3PSID=g.a000iAi2kjm9MrXQZBVMgeVI2YHXCiTZnpMaw3uSTY1IVlwuv3_cpS6dNOJh_-cjOffKi5v0cwACgYKARoSAQASFQHGX2MiUC5CV1c8TPgsBflrBD2KaRoVAUF8yKo3qIevEiNDTFwvkxeiTEE00076; HSID=AaizzZJgkKWm3N2Qx; SSID=AL4EkEIDVI4cD9dXl; APISID=Rp5tNB8Wx4gkTsWJ/AiLzmelqebC1hMp6X; SAPISID=BA8t2pKi8fPWpWuf/A39ijjMATJMFxV6jC; __Secure-1PAPISID=BA8t2pKi8fPWpWuf/A39ijjMATJMFxV6jC; __Secure-3PAPISID=BA8t2pKi8fPWpWuf/A39ijjMATJMFxV6jC; AEC=Ae3NU9O5AhneJPOmwVGyDlbaqsSB7vEpOqUzsKl_PxZpkwv-GM_bXzA6GQ; NID=512=RPIsKBWyEs6LW9kabDH-fV-egLRVYh2j6rAoRC0PSP2jYZe4TLoFCktQJA-fSfz93FENEiA9KnufDLRS1EBcXnAQ77l6C-9toBxMLURIR-LhKrIcqwF1po2fz6qU7w2fBSqYvRhuth0CaBNhkMl-3V_3ebHP4YsMLApg_FVwmkB2FJWKBGeWJa8tzyoLYM1PKi_6zw4_JVodJrzkyezcx320McTTwT6InSshy03s2ZJcLiLYJB0ejnazSyNiPSrF_mKG97XZYtD_SY8C6SGSnkkIgHP5hCVAuUetJjPLYS6qozTsP6fIOLJ2auz6TXlOl5z31cnaRBtXKeSbNY7CjPrt77ZMIispEn7BnXJDCdwZdDrJSNpWbxbz3LpEKsAKIPBCLgOcT2Psq-I-rJEbpld9fN2nAW55iV1xlGGUElHhTIPH8O7JeIk9Cyr3Q3Gq34W3U8CqAg2Um9LAcFcl86uoo4x0JZPxgwcFti6Nwv1n; __Secure-1PSIDTS=sidts-CjEB7F1E_CnL71Tf57VWkflDyLngiP39U3p2az-6hK43-0MP6NIGVINRLd0q2WWyVaNdEAA; __Secure-3PSIDTS=sidts-CjEB7F1E_CnL71Tf57VWkflDyLngiP39U3p2az-6hK43-0MP6NIGVINRLd0q2WWyVaNdEAA; DV=k4C8do3y30ZfgPVShWwBWS_epqYG6VjjuvLUHP2URQAAAEAIMU5ewDV2YAAAAOw7mDvytuuRHgAAAHUuNXbOwPihEgAAAA; UULE=a+cm9sZTogMQpwcm9kdWNlcjogMTIKdGltZXN0YW1wOiAxNzExODE5ODgyMDI1MDAwCmxhdGxuZyB7CiAgbGF0aXR1ZGVfZTc6IDU5MzI5MzIzNQogIGxvbmdpdHVkZV9lNzogMTgwNjg1ODA4Cn0KcmFkaXVzOiAxMDM4ODg2OS43MDIwODY4MjUKcHJvdmVuYW5jZTogNgo=; SIDCC=AKEyXzU5rQTWv8Q9QFXl_Y-2hPN1siSoRZKw6vw4Wa6HulWMArrWwLTPYjhKtWMGXn1dD3yWYvE; __Secure-1PSIDCC=AKEyXzUDRAQMLpqvquAH_jQe_76FG5YB5tU2yqYrxpAQyD6LEAIjVlsY1GeQSOiDwOHG05sjtGQ; __Secure-3PSIDCC=AKEyXzWQzo_nKO5bS-AwaVyH-pPumTxk9Bd1ShzwskvOfsCxxfOvKshdu3w4ul9IIpsN4Fqc0Q; SIDCC=AKEyXzUY3zFINcEnKbiobdgcWHHgt3eATxe6M85qLgfUPGe5C3L4thyVwX5tpuk7Mn1CrChJNfQ; __Secure-1PSIDCC=AKEyXzUBmcqAmT-74kKQyWLL5UO5KQPTEIErGflnfAFyH1kXJJlCwIPZIdud5N0L71DcdeB_RRs; __Secure-3PSIDCC=AKEyXzWhlFayyIrv85p1vTgacu8Tr6RJkJCElBC_SEZ4XjUlWVphfwUv3CFwsVWZO1irDxtGlw',
+  'sec-fetch-mode': 'cors'
+}
+
+response = requests.request("GET", url, headers=headers, data=payload)
+
+# print(response.json())
+if response.status_code == 200:
+    raw_data  = response.text
+    cleaned_response_text = raw_data.replace(")]}'\n", "", 1)
+    cleaned_response_text = cleaned_response_text.rstrip(" /*\"*/")
+
+    try:
+        data = json.loads(cleaned_response_text).get('d')
+        print(type(data))  # Or process the data as needed
+    except json.JSONDecodeError as e:
+        print(f"Failed to decode JSON: {e}")
